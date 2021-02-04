@@ -5,7 +5,7 @@ import java.awt.*;
 public class Board extends JPanel {
 
     private Tile tiles [][];
-    private int tileSize = 25;
+    private int tileSize;
 
     public Board(int tileSize) {
         this.setLayout(new GridLayout(8, 8));

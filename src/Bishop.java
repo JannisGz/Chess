@@ -4,10 +4,9 @@ public class Bishop extends ChessPiece {
 
     public Bishop(Player owner) {
         super(owner);
-    }
-
-    @Override
-    public ImageIcon getIcon() {
-        return null;
+        if (owner.getColor() == ChessColor.WHITE)
+            this.icon = new ImageIcon("resources/BishopW.png");
+        else
+            this.icon = new ImageIcon("resources/BishopB.png");
     }
 }

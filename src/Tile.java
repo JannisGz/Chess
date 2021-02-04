@@ -16,7 +16,7 @@ public class Tile extends JButton {
         if (this.color == ChessColor.WHITE)
             this.setBackground(Color.WHITE);
         else
-            this.setBackground(Color.BLACK);
+            this.setBackground(Color.DARK_GRAY);
 
         this.chessPiece = null;
         this.row = row;

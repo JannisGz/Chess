@@ -14,7 +14,7 @@ public class Gui {
         window.setLocationRelativeTo(null);
         window.setResizable(false);
 
-        Board board = new Board(25);
+        Board board = new Board(45);
         window.add(board);
         window.pack();
         window.setVisible(true);

@@ -4,10 +4,9 @@ public class Queen extends ChessPiece {
 
     public Queen(Player owner) {
         super(owner);
-    }
-
-    @Override
-    public ImageIcon getIcon() {
-        return null;
+        if (owner.getColor() == ChessColor.WHITE)
+            this.icon = new ImageIcon("resources/QueenW.png");
+        else
+            this.icon = new ImageIcon("resources/QueenB.png");
     }
 }
