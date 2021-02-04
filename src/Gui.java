@@ -16,6 +16,8 @@ public class Gui {
 
         Board board = new Board(45);
         window.add(board);
+
+        Game game = new Game(board);
         window.pack();
         window.setVisible(true);
     }

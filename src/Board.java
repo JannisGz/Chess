@@ -21,9 +21,15 @@ public class Board extends JPanel {
                 } else {
                     tile = new Tile(ChessColor.BLACK, rowNum, colNum, tileSize);
                 }
-                tiles[colNum][rowNum] = tile;
+                tiles[rowNum][colNum] = tile;
                 this.add(tile);
             }
         }
+    }
+
+    Tile getTile(int row, int col) {
+        if (row >= tiles.length || col >= tiles.length)
+            throw new IndexOutOfBoundsException("Error: Trying to access a tile that is not on the board");
+        return tiles[row][col];
     }
 }
