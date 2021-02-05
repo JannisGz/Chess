@@ -9,4 +9,9 @@ public class Pawn extends ChessPiece{
         else
             this.icon = new ImageIcon("resources/PawnB.png");
     }
+
+    @Override
+    public boolean isValidMove(Tile target, Board board) {
+        return true;
+    }
 }

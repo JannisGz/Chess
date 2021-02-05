@@ -35,4 +35,6 @@ public abstract class ChessPiece {
     public void setTile(Tile tile) {
         this.tile = tile;
     }
+
+    public abstract boolean isValidMove(Tile target, Board board);
 }

@@ -9,4 +9,9 @@ public class Bishop extends ChessPiece {
         else
             this.icon = new ImageIcon("resources/BishopB.png");
     }
+
+    @Override
+    public boolean isValidMove(Tile target, Board board) {
+        return false;
+    }
 }

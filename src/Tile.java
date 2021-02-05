@@ -43,6 +43,7 @@ public class Tile extends JButton {
 
     public void setChessPiece(ChessPiece chessPiece) {
         this.chessPiece = chessPiece;
+        this.chessPiece.setTile(this);
         this.setIcon(chessPiece.getIcon());
     }
 

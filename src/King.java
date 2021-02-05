@@ -13,4 +13,9 @@ public class King extends ChessPiece{
 
         this.canCastle = true;
     }
+
+    @Override
+    public boolean isValidMove(Tile target, Board board) {
+        return false;
+    }
 }

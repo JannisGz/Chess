@@ -9,4 +9,9 @@ public class Rook extends ChessPiece{
         else
             this.icon = new ImageIcon("resources/RookB.png");
     }
+
+    @Override
+    public boolean isValidMove(Tile target, Board board) {
+        return false;
+    }
 }

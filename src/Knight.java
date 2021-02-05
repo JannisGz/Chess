@@ -9,4 +9,9 @@ public class Knight extends ChessPiece{
         else
             this.icon = new ImageIcon("resources/KnightB.png");
     }
+
+    @Override
+    public boolean isValidMove(Tile target, Board board) {
+        return false;
+    }
 }

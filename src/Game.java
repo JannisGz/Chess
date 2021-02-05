@@ -119,28 +119,47 @@ public class Game {
 
                 if (this.chosenTile == clickedTile) {
                     // The same Tile was chosen again -> Reset to choosing phase
-                    this.chosenTile.markAsInactive();
-                    clickedTile.markAsInactive();
-                    this.currentPhase = Phase.Choosing;
+                    this.resetToChoosingPhase(clickedTile);
                 } else if (clickedTile.hasChessPiece()) {
                     // There is a chess piece on the targeted tile
                     ChessPiece targetedPiece = clickedTile.getChessPiece();
                     if (targetedPiece.getColor() == chosenPiece.getColor()) {
                         // Targeting a ChessPiece that belongs to the same player -> Reset to choosing phase
-                        this.chosenTile.markAsInactive();
-                        clickedTile.markAsInactive();
-                        this.currentPhase = Phase.Choosing;
+                        this.resetToChoosingPhase(clickedTile);
                     } else {
-                        // Empty tile -> Check Validity
+                        // Check if chosen Piece can eliminate the targeted piece
+                        if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
+                            this.chosenTile.removeChessPiece(); // Remove from original tile
+                            targetedPiece.setTile(null); // Remove currently occupying chess piece
+                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                            togglePlayer();
+                        }
+                        this.resetToChoosingPhase(clickedTile);
                         break;
                     }
                 } else {
-                    // Empty tile -> Check Validity
+                    // Empty tile -> Check if chosen piece can move to the targeted tile
+                    if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
+                        this.chosenTile.removeChessPiece(); // Remove from original tile
+                        clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                        togglePlayer();
+                    }
+                    this.resetToChoosingPhase(clickedTile);
                     break;
                 }
                 break;
             default:
                 throw new IllegalStateException("Error: Game is in a unknown Phase.");
         }
+    }
+
+    private void resetToChoosingPhase(Tile clickedTile) {
+        this.chosenTile.markAsInactive();
+        clickedTile.markAsInactive();
+        this.currentPhase = Phase.Choosing;
+    }
+
+    private void togglePlayer() {
+        currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
     }
 }
