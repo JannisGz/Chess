@@ -3,9 +3,11 @@ public class Game {
     private Board board;
     private Player playerWhite;
     private Player playerBlack;
+    private Player currentPlayer;
 
     public Game(Board board) {
         this.board = board;
+        this.board.addObserver(this);
 
         playerWhite = new Player(ChessColor.WHITE);
         playerBlack = new Player(ChessColor.BLACK);
@@ -75,6 +77,11 @@ public class Game {
         board.getTile(6, 6).setChessPiece(pawn7);
         pawn8 = new Pawn(playerWhite);
         board.getTile(6, 7).setChessPiece(pawn8);
+
+        currentPlayer = playerWhite;
     }
 
+    public void update(Tile clickedTile) {
+        System.out.println(clickedTile);
+    }
 }

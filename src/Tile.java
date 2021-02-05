@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 public class Tile extends JButton {
 
+    private Board board;
     private ChessColor color;
     private ChessPiece chessPiece;
     private final int size;
@@ -11,7 +12,8 @@ public class Tile extends JButton {
     private final int col;
     private String tileName; // To Do: Calculate Name of tile (e.g. B6, H7)
 
-    public Tile(ChessColor color, int row, int col, int size) {
+    public Tile(Board board, ChessColor color, int row, int col, int size) {
+        this.board = board;
         this.color = color;
         if (this.color == ChessColor.WHITE)
             this.setBackground(Color.WHITE);
@@ -68,5 +70,13 @@ public class Tile extends JButton {
 
     public int getCol() {
         return col;
+    }
+
+    public Board getBoard() {
+        return this.board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }
