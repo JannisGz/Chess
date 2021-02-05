@@ -6,10 +6,12 @@ public abstract class ChessPiece {
     private Player owner;
     protected ImageIcon icon;
     protected Tile tile;
+    protected boolean canCastle;
 
     public ChessPiece(Player owner) {
         this.owner = owner;
         this.owner.addChessPiece(this);
+        this.canCastle = false;
     }
 
     public ChessColor getColor() {

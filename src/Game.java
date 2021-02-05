@@ -1,8 +1,8 @@
 public class Game {
 
-    private Board board;
-    private Player playerWhite;
-    private Player playerBlack;
+    private final Board board;
+    private final Player playerWhite;
+    private final Player playerBlack;
     private Player currentPlayer;
     private Phase currentPhase;
     private ChessPiece chosenPiece;
@@ -132,6 +132,7 @@ public class Game {
                             this.chosenTile.removeChessPiece(); // Remove from original tile
                             targetedPiece.setTile(null); // Remove currently occupying chess piece
                             clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                            this.chosenPiece.canCastle = false;
                             togglePlayer();
                         }
                         this.resetToChoosingPhase(clickedTile);
@@ -142,6 +143,7 @@ public class Game {
                     if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
                         this.chosenTile.removeChessPiece(); // Remove from original tile
                         clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                        this.chosenPiece.canCastle = false;
                         togglePlayer();
                     }
                     this.resetToChoosingPhase(clickedTile);
