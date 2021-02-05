@@ -27,7 +27,7 @@ public class Rook extends ChessPiece {
         boolean sameRow = currentRow == targetRow;
         boolean sameAxis = sameCol || sameRow;
 
-        // ToDo: check if there are pieces between the tiles
+        // check if there are pieces between the tiles
         boolean noPiecesBetween = true;
 
         if (sameCol) {
