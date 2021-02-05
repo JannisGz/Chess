@@ -1,3 +1,6 @@
+import javax.swing.*;
+import java.awt.*;
+
 public class Game {
 
     private Board board;
@@ -82,6 +85,6 @@ public class Game {
     }
 
     public void update(Tile clickedTile) {
-        System.out.println(clickedTile);
+        clickedTile.markAsActive();
     }
 }

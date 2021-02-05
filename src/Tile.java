@@ -29,6 +29,7 @@ public class Tile extends JButton {
 
         this.setMargin(new Insets(0,0,0,0));
         this.setOpaque(true);
+        this.setBorder(BorderFactory.createLineBorder(Color.blue, size/10)); // Highlights the tile when clicked
         this.setBorderPainted(false);
     }
 
@@ -79,4 +80,13 @@ public class Tile extends JButton {
     public void setBoard(Board board) {
         this.board = board;
     }
+
+    public void markAsActive() {
+        this.setBorderPainted(true);
+    }
+
+    public void markAsInactive() {
+        this.setBorderPainted(false);
+    }
+
 }
