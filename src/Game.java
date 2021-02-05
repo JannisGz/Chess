@@ -1,12 +1,18 @@
-import javax.swing.*;
-import java.awt.*;
-
 public class Game {
 
     private Board board;
     private Player playerWhite;
     private Player playerBlack;
     private Player currentPlayer;
+    private Phase currentPhase;
+    private ChessPiece chosenPiece;
+    private Tile chosenTile;
+
+    enum Phase {
+        Choosing,
+        Moving
+    }
+
 
     public Game(Board board) {
         this.board = board;
@@ -82,9 +88,59 @@ public class Game {
         board.getTile(6, 7).setChessPiece(pawn8);
 
         currentPlayer = playerWhite;
+        currentPhase = Phase.Choosing;
     }
 
     public void update(Tile clickedTile) {
-        clickedTile.markAsActive();
+
+        switch (currentPhase) {
+            case Choosing: // A Tile with a piece of the currently active player has to be chosen
+
+                // Check if the chosen tile is a valid choice for the active player
+                if (!clickedTile.hasChessPiece()) {
+                    // The Tile does not contain a chess piece
+                    break;
+                }
+                this.chosenPiece = clickedTile.getChessPiece();
+
+                if (this.chosenPiece.getColor() != this.currentPlayer.getColor()) {
+                    // The Tile contains a chess piece, that does NOT belong to the active player
+                    break;
+                } else {
+                    // The chosen Tile is a valid option -> Entering Moving phase
+                    this.chosenTile = clickedTile;
+                    this.chosenTile.markAsActive();
+                    this.currentPhase = Phase.Moving;
+                }
+
+                break;
+
+            case Moving:
+
+                if (this.chosenTile == clickedTile) {
+                    // The same Tile was chosen again -> Reset to choosing phase
+                    this.chosenTile.markAsInactive();
+                    clickedTile.markAsInactive();
+                    this.currentPhase = Phase.Choosing;
+                } else if (clickedTile.hasChessPiece()) {
+                    // There is a chess piece on the targeted tile
+                    ChessPiece targetedPiece = clickedTile.getChessPiece();
+                    if (targetedPiece.getColor() == chosenPiece.getColor()) {
+                        // Targeting a ChessPiece that belongs to the same player -> Reset to choosing phase
+                        this.chosenTile.markAsInactive();
+                        clickedTile.markAsInactive();
+                        this.currentPhase = Phase.Choosing;
+                    } else {
+                        // Empty tile -> Check Validity
+                        break;
+                    }
+                } else {
+                    // Empty tile -> Check Validity
+                    break;
+                }
+                break;
+            default:
+                throw new IllegalStateException("Error: Game is in a unknown Phase.");
+        }
     }
 }

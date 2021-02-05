@@ -82,10 +82,12 @@ public class Tile extends JButton {
     }
 
     public void markAsActive() {
+        this.setBorder(BorderFactory.createLineBorder(Color.blue, this.size/10));
         this.setBorderPainted(true);
     }
 
     public void markAsInactive() {
+        this.setBorder(BorderFactory.createLineBorder(Color.blue, 0));
         this.setBorderPainted(false);
     }
 
