@@ -145,6 +145,11 @@ public class Game {
                         clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                         this.chosenPiece.canCastle = false;
                         togglePlayer();
+                    } else if (this.chosenPiece instanceof King) {
+                        if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
+                            ((King) this.chosenPiece).castle(clickedTile, this.board);
+                            togglePlayer();
+                        }
                     }
                     this.resetToChoosingPhase(clickedTile);
                     break;

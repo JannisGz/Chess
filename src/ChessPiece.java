@@ -39,4 +39,8 @@ public abstract class ChessPiece {
     }
 
     public abstract boolean isValidMove(Tile target, Board board);
+
+    public boolean canCastle() {
+        return this.canCastle;
+    }
 }
