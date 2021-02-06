@@ -7,6 +7,9 @@ public class Game {
     private Phase currentPhase;
     private ChessPiece chosenPiece;
     private Tile chosenTile;
+    private ChessPiece lastMovedPiece;
+    private Tile lastSourceTile;
+    private Tile lastTargetTile;
 
     enum Phase {
         Choosing,
@@ -87,8 +90,8 @@ public class Game {
         pawn8 = new Pawn(playerWhite);
         board.getTile(6, 7).setChessPiece(pawn8);
 
-        currentPlayer = playerWhite;
-        currentPhase = Phase.Choosing;
+        this.currentPlayer = playerWhite;
+        this.currentPhase = Phase.Choosing;
     }
 
     public void update(Tile clickedTile) {
@@ -133,6 +136,7 @@ public class Game {
                             targetedPiece.setTile(null); // Remove currently occupying chess piece
                             clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                             this.chosenPiece.canCastle = false;
+                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
                             togglePlayer();
                         }
                         this.resetToChoosingPhase(clickedTile);
@@ -144,10 +148,24 @@ public class Game {
                         this.chosenTile.removeChessPiece(); // Remove from original tile
                         clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                         this.chosenPiece.canCastle = false;
+                        if (this.chosenPiece instanceof Pawn && Math.abs(clickedTile.getRow() - this.chosenTile.getRow()) == 2) {
+                            this.lastMovedPiece = this.chosenPiece;
+                        }
+                        setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
                         togglePlayer();
                     } else if (this.chosenPiece instanceof King) {
                         if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
                             ((King) this.chosenPiece).castle(clickedTile, this.board);
+                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
+                            togglePlayer();
+                        }
+                    } else if (this.chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, this.chosenPiece)) {
+                        if (((Pawn) this.chosenPiece).isValidEnPassantMove(clickedTile, this.board)) {
+
+                            this.chosenTile.removeChessPiece(); // Remove from original tile
+                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                            this.lastMovedPiece.getTile().removeChessPiece();
+                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
                             togglePlayer();
                         }
                     }
@@ -168,5 +186,23 @@ public class Game {
 
     private void togglePlayer() {
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
+    }
+
+    private boolean isEnPassantPossible(Tile target, ChessPiece piece) {
+        if (!(piece instanceof Pawn) || !(this.lastMovedPiece instanceof Pawn)) {
+            return false;
+        } else {
+            int row1 = this.lastSourceTile.getRow();
+            int row2 = target.getRow();
+            int row3 = this.lastTargetTile.getRow();
+
+            return (row1 < row2 && row2 < row3) || (row3 < row2 && row2 < row1);
+        }
+    }
+
+    private void setLastMove(Tile source, Tile target, ChessPiece movedPiece) {
+        this.lastSourceTile = source;
+        this.lastTargetTile = target;
+        this.lastMovedPiece = movedPiece;
     }
 }

@@ -48,6 +48,7 @@ public class Tile extends JButton {
     }
 
     public void removeChessPiece() {
+        this.chessPiece.setTile(null);
         this.chessPiece = null;
         ImageIcon empty_icon = new ImageIcon(new BufferedImage(this.size, this.size, BufferedImage.TYPE_INT_ARGB));
         this.setIcon(empty_icon);

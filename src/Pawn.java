@@ -55,11 +55,14 @@ public class Pawn extends ChessPiece {
     }
 
     public boolean isValidEnPassantMove(Tile target, Board board) {
-        return false;
+        int currentCol = this.getTile().getCol();
+        int currentRow = this.getTile().getRow();
+        int targetCol = target.getCol();
+        int targetRow = target.getRow();
+
+        int delta_forward = Math.abs(currentRow - targetRow); // How many tiles forward
+        int delta_diagonal = Math.abs(currentCol - targetCol); // Offset to the side
+
+        return delta_diagonal == 1 && delta_forward == 1;
     }
-
-    public void enPassant(Tile target, Board board) {
-
-    }
-
 }
