@@ -27,7 +27,7 @@ public class Bishop extends ChessPiece {
         // check if there are pieces between the tiles
         boolean noPiecesBetween = true;
         // Directions --, -+, ++, +-
-            if (targetRow < currentRow && targetCol < currentCol) { // -- 
+            if (targetRow < currentRow && targetCol < currentCol) { // --
                 for (int delta = 1; delta < minDelta; delta++) {
                     Tile tileInBetween = board.getTile(currentRow - delta, currentCol - delta);
                     if (tileInBetween.hasChessPiece()) {

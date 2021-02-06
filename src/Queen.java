@@ -12,6 +12,17 @@ public class Queen extends ChessPiece {
 
     @Override
     public boolean isValidMove(Tile target, Board board) {
-        return false;
+        Rook temporaryRook = new Rook(this.getOwner());
+        temporaryRook.setTile(this.getTile());
+        boolean validRookMove = temporaryRook.isValidMove(target,board);
+
+        Bishop temporaryBishop = new Bishop(this.getOwner());
+        temporaryBishop.setTile(this.getTile());
+        boolean validBishopMove = temporaryBishop.isValidMove(target, board);
+
+        temporaryBishop = null;
+        temporaryBishop = null; // Ready for garbage collection
+
+        return validRookMove || validBishopMove;
     }
 }
