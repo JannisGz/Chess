@@ -187,7 +187,7 @@ public class Game {
     }
 
     private void togglePlayer() {
-        System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved...");
+        System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
         if (isChecked(playerWhite)) {
             System.out.println("  White is checked.");
         }
