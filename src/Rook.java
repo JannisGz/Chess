@@ -52,4 +52,9 @@ public class Rook extends ChessPiece {
 
         return sameAxis && noPiecesBetween;
     }
+
+    @Override
+    public String getName() {
+        return "Rook";
+    }
 }

@@ -36,6 +36,11 @@ public class King extends ChessPiece {
         return normalMove;
     }
 
+    @Override
+    public String getName() {
+        return "King";
+    }
+
     public boolean isValidCastlingMove(Tile target, Board board) {
         int targetCol = target.getCol();
         int targetRow = target.getRow();

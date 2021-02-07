@@ -60,4 +60,9 @@ public class Bishop extends ChessPiece {
 
         return sameDiagonal && noPiecesBetween;
     }
+
+    @Override
+    public String getName() {
+        return "Bishop";
+    }
 }

@@ -54,6 +54,11 @@ public class Pawn extends ChessPiece {
         }
     }
 
+    @Override
+    public String getName() {
+        return "Pawn";
+    }
+
     public boolean isValidEnPassantMove(Tile target, Board board) {
         int currentCol = this.getTile().getCol();
         int currentRow = this.getTile().getRow();

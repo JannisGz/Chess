@@ -28,4 +28,9 @@ public class Knight extends ChessPiece{
                 (currentRow - 2 == targetRow && currentCol + 1 == targetCol) ||
                 (currentRow - 2 == targetRow && currentCol - 1 == targetCol);
     }
+
+    @Override
+    public String getName() {
+        return "Knight";
+    }
 }

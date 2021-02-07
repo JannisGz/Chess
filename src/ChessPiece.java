@@ -43,4 +43,6 @@ public abstract class ChessPiece {
     public boolean canCastle() {
         return this.canCastle;
     }
+
+    public abstract String getName();
 }

@@ -25,4 +25,9 @@ public class Queen extends ChessPiece {
 
         return validRookMove || validBishopMove;
     }
+
+    @Override
+    public String getName() {
+        return "Queen";
+    }
 }
