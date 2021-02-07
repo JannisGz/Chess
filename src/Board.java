@@ -43,6 +43,10 @@ public class Board extends JPanel {
         return tiles[row][col];
     }
 
+    public Tile[][] getTiles() {
+        return tiles;
+    }
+
     public void addObserver(Game game) {
         this.observers.add(game);
     }

@@ -10,6 +10,7 @@ public class Game {
     private ChessPiece lastMovedPiece;
     private Tile lastSourceTile;
     private Tile lastTargetTile;
+    private int moveNum;
 
     enum Phase {
         Choosing,
@@ -92,6 +93,7 @@ public class Game {
 
         this.currentPlayer = playerWhite;
         this.currentPhase = Phase.Choosing;
+        this.moveNum = 1;
     }
 
     public void update(Tile clickedTile) {
@@ -185,7 +187,15 @@ public class Game {
     }
 
     private void togglePlayer() {
+        System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved...");
+        if (isChecked(playerWhite)) {
+            System.out.println("  White is checked.");
+        }
+        if (isChecked(playerBlack)) {
+            System.out.println("  Black is checked.");
+        }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
+        moveNum++;
     }
 
     private boolean isEnPassantPossible(Tile target, ChessPiece piece) {
@@ -204,5 +214,34 @@ public class Game {
         this.lastSourceTile = source;
         this.lastTargetTile = target;
         this.lastMovedPiece = movedPiece;
+    }
+
+    private boolean isChecked(Player player) {
+
+        // Loop through all enemy chess pieces and check if the check the players king
+        Tile [][] tiles = board.getTiles();
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[row].length; col++) {
+
+                if (!tiles[row][col].hasChessPiece()) {
+                    continue; // Skip this tile if it has no chess piece
+                }
+
+                ChessPiece potentialAttacker = tiles[row][col].getChessPiece();
+
+                if (potentialAttacker.getOwner() == player) {
+                    continue; // Skip this piece if it does not belong to the enemy player
+                }
+
+                King playerKing = player.getKing();
+
+                if (potentialAttacker.isValidMove(playerKing.getTile(), this.board)) {
+                    return true; // Check if enemy piece could capture the players king
+                }
+
+            }
+        }
+
+        return false;
     }
 }
