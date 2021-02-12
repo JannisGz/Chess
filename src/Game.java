@@ -134,7 +134,8 @@ public class Game {
                     } else {
                         // Check if chosen Piece can eliminate the targeted piece
                         if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, false)) {
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, false, currentPlayer)) {
+                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
                                 this.resetToChoosingPhase(clickedTile);
                             } else {
                                 this.chosenTile.removeChessPiece(); // Remove from original tile
@@ -151,7 +152,8 @@ public class Game {
                 } else {
                     // Empty tile -> Check if chosen piece can move to the targeted tile
                     if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                        if (moveLeavesKingExposed(chosenTile, clickedTile, false, false)) {
+                        if (moveLeavesKingExposed(chosenTile, clickedTile, false, false, currentPlayer)) {
+                            System.out.println("Can not carry out this move because it leaves the current players king exposed.");
                             this.resetToChoosingPhase(clickedTile);
                         } else {
                             this.chosenTile.removeChessPiece(); // Remove from original tile
@@ -166,7 +168,8 @@ public class Game {
                     } else if (this.chosenPiece instanceof King) {
                         if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
 
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, true, false)) {
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, true, false, currentPlayer)) {
+                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
                                 this.resetToChoosingPhase(clickedTile);
                             } else {
                                 ((King) this.chosenPiece).castle(clickedTile, this.board);
@@ -176,7 +179,8 @@ public class Game {
                         }
                     } else if (this.chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, this.chosenPiece)) {
                         if (((Pawn) this.chosenPiece).isValidEnPassantMove(clickedTile, this.board)) {
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, true)) {
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, true, currentPlayer)) {
+                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
                                 this.resetToChoosingPhase(clickedTile);
                             } else {
                                 this.chosenTile.removeChessPiece(); // Remove from original tile
@@ -204,10 +208,14 @@ public class Game {
 
     private void togglePlayer() {
         System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
-        if (isChecked(playerWhite, board)) {
+        if (isCheckMate(playerWhite, board)) {
+            System.out.println("  White is checkmate. Black wins.");
+        } else if (isChecked(playerWhite, board)) {
             System.out.println("  White is checked.");
         }
-        if (isChecked(playerBlack, board)) {
+        if (isCheckMate(playerBlack, board)) {
+            System.out.println("  Black is checkmate. White wins.");
+        } else if (isChecked(playerBlack, board)) {
             System.out.println("  Black is checked.");
         }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
@@ -235,7 +243,7 @@ public class Game {
     private boolean isChecked(Player player, Board board) {
 
         // Loop through all enemy chess pieces and check if the check the players king
-        Tile [][] tiles = board.getTiles();
+        Tile[][] tiles = board.getTiles();
         for (int row = 0; row < tiles.length; row++) {
             for (int col = 0; col < tiles[row].length; col++) {
 
@@ -261,7 +269,7 @@ public class Game {
         return false;
     }
 
-    private boolean moveLeavesKingExposed(Tile source, Tile target, boolean castling, boolean enPassant) {
+    private boolean moveLeavesKingExposed(Tile source, Tile target, boolean castling, boolean enPassant, Player player) {
         // Copy board, carry out the move and check if the players King is checked
 
         Board boardCopy = copyBoard();
@@ -270,7 +278,7 @@ public class Game {
         Player copyBlack = boardCopy.getPlayerBlack();
         Player currentPlayer;
 
-        if (this.currentPlayer.getColor() == ChessColor.WHITE) {
+        if (player.getColor() == ChessColor.WHITE) {
             currentPlayer = copyWhite;
         } else {
             currentPlayer = copyBlack;
@@ -293,11 +301,7 @@ public class Game {
             targetedTile.setChessPiece(chosenPiece); // Place on new tile
         }
 
-        boolean isChecked = isChecked(currentPlayer, boardCopy);
-        if (isChecked) {
-            System.out.println("Can not carry out this move because it leaves the current players king exposed.");
-        }
-        return isChecked;
+        return isChecked(currentPlayer, boardCopy);
     }
 
     private Board copyBoard() {
@@ -305,8 +309,8 @@ public class Game {
         Player copyWhite = new Player(ChessColor.WHITE);
         Player copyBlack = new Player(ChessColor.BLACK);
 
-        Tile [][] tiles = board.getTiles();
-        Tile [][] copiedTiles = copy.getTiles();
+        Tile[][] tiles = board.getTiles();
+        Tile[][] copiedTiles = copy.getTiles();
         for (int row = 0; row < tiles.length; row++) {
             for (int col = 0; col < tiles[row].length; col++) {
                 if (tiles[row][col].hasChessPiece()) {
@@ -332,5 +336,69 @@ public class Game {
         copy.setPlayerBlack(copyBlack);
         copy.setPlayerWhite(copyWhite);
         return copy;
+    }
+
+    private boolean isCheckMate(Player player, Board board) {
+        // TODO: Quadruple nested for loop. Better solution possible? (8*8*8*8 = 4k possibilities)
+        if (!isChecked(player, board)) { // Can not be check mate if not checked
+            return false;
+        }
+
+        // Loop through all Tiles on the Board.
+        Tile[][] tiles = board.getTiles();
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[row].length; col++) {
+                Tile currentTile = tiles[row][col];
+
+                if (!currentTile.hasChessPiece()) { // Check if there is a chess piece on the tile
+                    continue;
+                }
+
+                ChessPiece currentPiece = currentTile.getChessPiece();
+
+                if (player != currentPiece.getOwner()) { // ChessPiece does not belong to the currently active player
+                    continue;
+                }
+
+                // Loop through all Tiles and test if moving the chess piece to that Tile will break the check
+                for (int row2 = 0; row2 < tiles.length; row2++) {
+                    for (int col2 = 0; col2 < tiles[row2].length; col2++) {
+                        if (row2 == row && col2 == col) {
+                            continue;
+                        }
+                        Tile targetTile = tiles[row2][col2];
+
+                        if (targetTile.hasChessPiece()) { // Check if there is a chess piece on the tile
+                            if (targetTile.getChessPiece().getOwner() == player) {
+                                continue;
+                            }
+                        }
+
+                        boolean validMove = currentPiece.isValidMove(targetTile, board);
+                        boolean enPassant = false;
+
+                        if (currentPiece instanceof Pawn && isEnPassantPossible(targetTile, currentPiece)) {
+                            if (((Pawn) currentPiece).isValidEnPassantMove(targetTile, board)) {
+                                enPassant = true;
+                            }
+                        }
+
+                        // Can not castle while being checked -> No need to check if such a move would remove the check
+                        if (validMove || enPassant) {
+                            boolean stillExposed = moveLeavesKingExposed(currentTile, targetTile, false, enPassant, player);
+                            if (!stillExposed) {
+                                System.out.println("***Found a move that breaks the check -> no checkmate");
+                                System.out.println("***" + currentPiece.getName() + ": " + currentTile.getName() + " -> " + targetTile.getName());
+                                return false; // There is a move that breaks the check -> Not a checkmate.
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+        return true;
     }
 }
