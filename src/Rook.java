@@ -7,6 +7,11 @@ import javax.swing.*;
  */
 public class Rook extends ChessPiece {
 
+    /**
+     * Creates a new Rook owned by the given Player. Rooks are able to castle, if they have not been moved before.
+     *
+     * @param owner the player who owns this chess piece
+     */
     public Rook(Player owner) {
         super(owner);
         this.canCastle = true;
@@ -16,6 +21,19 @@ public class Rook extends ChessPiece {
             this.icon = new ImageIcon("resources/RookB.png");
     }
 
+    /**
+     * Calculates if the Rooks move set allows it to move from its current location (the Tile it currently is
+     * placed on) to the desired location (the given target Tile). This method only checks if the move is possible
+     * from the viewpoint of the chess piece. It returns false, if the targeted Tile is either not reachable from its
+     * current location or if there are other chess pieces in between the two locations.
+     *
+     * Rooks can either move horizontally or vertically, but not diagonally. They are involved in castling moves, which
+     * are NOT checked by this method.
+     *
+     * @param target the target Tile of the move
+     * @param board the board which both the current and target Tile belong to
+     * @return true if this is a valid move for a Rook, else: false
+     */
     @Override
     public boolean isValidMove(Tile target, Board board) {
         // current and target tiles have to be on the same axis
@@ -53,12 +71,22 @@ public class Rook extends ChessPiece {
         return sameAxis && noPiecesBetween;
     }
 
+    /**
+     * Returns the name of the chess piece. In this case "Rook".
+     *
+     * @return a String holding the name of the chess piece.
+     */
     @Override
     public String getName() {
         return "Rook";
     }
 
     @Override
+    /**
+     * Creates a copy of this chess piece.
+     *
+     * @return a copy of this Rook
+     */
     public ChessPiece clone() {
         ChessPiece copy = new Rook(this.owner);
         this.owner.removeChessPiece(copy);
