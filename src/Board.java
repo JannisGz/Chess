@@ -39,13 +39,6 @@ public class Board extends JPanel {
         }
     }
 
-    private Board (Board board) {
-        this.setLayout(board.getLayout());
-        this.setBorder(board.getBorder());
-        this.tileSize = board.tileSize;
-        this.tiles = board.getTiles();
-    }
-
     public Tile getTile(int row, int col) {
         if (row >= tiles.length || col >= tiles.length)
             throw new IndexOutOfBoundsException("Error: Trying to access a tile that is not on the board");
@@ -68,19 +61,6 @@ public class Board extends JPanel {
         for (Game observer: this.observers) {
             observer.update(clickedTile);
         }
-    }
-
-    public Board clone() {
-        Board copy = new Board(this);
-        Tile tiles [][] = new Tile[8][8];
-        for (int rowNum = 0; rowNum < tiles.length; rowNum++) {
-            for (int colNum = 0; colNum < tiles[rowNum].length; colNum++) {
-                tiles[rowNum][colNum] = this.tiles[rowNum][colNum].clone();
-                tiles[rowNum][colNum].setBoard(copy);
-            }
-        }
-        copy.tiles = tiles;
-        return copy;
     }
 
     public int getTileSize() {

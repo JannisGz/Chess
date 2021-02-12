@@ -57,16 +57,6 @@ public class Tile extends JButton {
         this.name = colToName.get(col) + rowToName.get(row);
     }
 
-    private Tile(Tile tile) {
-        this.board = tile.board;
-        this.color = tile.color;
-        this.size = tile.size;
-        this.row = tile.row;
-        this.col = tile.col;
-        this.name = tile.name;
-        this.chessPiece = tile.chessPiece;
-    }
-
     public ChessColor getColor() {
         return color;
     }
@@ -130,15 +120,5 @@ public class Tile extends JButton {
    @Override
     public String getName() {
         return name;
-    }
-
-    public Tile clone(){
-        Tile copy = new Tile(this);
-
-        if (this.hasChessPiece()) {
-            copy.chessPiece = this.getChessPiece().clone();
-        }
-
-        return copy;
     }
 }
