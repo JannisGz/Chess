@@ -1,9 +1,8 @@
 import javax.swing.*;
-import java.awt.*;
 
-public abstract class ChessPiece {
+public abstract class ChessPiece{
 
-    private Player owner;
+    protected Player owner;
     protected ImageIcon icon;
     protected Tile tile;
     protected boolean canCastle;
@@ -45,4 +44,7 @@ public abstract class ChessPiece {
     }
 
     public abstract String getName();
+
+    @Override
+    public abstract ChessPiece clone();
 }

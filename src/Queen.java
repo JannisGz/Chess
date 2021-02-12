@@ -30,4 +30,14 @@ public class Queen extends ChessPiece {
     public String getName() {
         return "Queen";
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new Queen(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }

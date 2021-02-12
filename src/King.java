@@ -116,4 +116,14 @@ public class King extends ChessPiece {
             board.getTile(7,5).setChessPiece(involvedRook);
         }
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new King(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }

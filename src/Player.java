@@ -43,4 +43,8 @@ public class Player {
     public King getKing() {
         return this.king;
     }
+
+    public void setKing(King king) {
+        this.king = king;
+    }
 }

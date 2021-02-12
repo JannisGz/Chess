@@ -134,12 +134,16 @@ public class Game {
                     } else {
                         // Check if chosen Piece can eliminate the targeted piece
                         if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                            this.chosenTile.removeChessPiece(); // Remove from original tile
-                            targetedPiece.setTile(null); // Remove currently occupying chess piece
-                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                            this.chosenPiece.canCastle = false;
-                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                            togglePlayer();
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, false)) {
+                                this.resetToChoosingPhase(clickedTile);
+                            } else {
+                                this.chosenTile.removeChessPiece(); // Remove from original tile
+                                targetedPiece.setTile(null); // Remove currently occupying chess piece
+                                clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                                this.chosenPiece.canCastle = false;
+                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
+                                togglePlayer();
+                            }
                         }
                         this.resetToChoosingPhase(clickedTile);
                         break;
@@ -147,28 +151,40 @@ public class Game {
                 } else {
                     // Empty tile -> Check if chosen piece can move to the targeted tile
                     if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                        this.chosenTile.removeChessPiece(); // Remove from original tile
-                        clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                        this.chosenPiece.canCastle = false;
-                        if (this.chosenPiece instanceof Pawn && Math.abs(clickedTile.getRow() - this.chosenTile.getRow()) == 2) {
-                            this.lastMovedPiece = this.chosenPiece;
-                        }
-                        setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                        togglePlayer();
-                    } else if (this.chosenPiece instanceof King) {
-                        if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
-                            ((King) this.chosenPiece).castle(clickedTile, this.board);
+                        if (moveLeavesKingExposed(chosenTile, clickedTile, false, false)) {
+                            this.resetToChoosingPhase(clickedTile);
+                        } else {
+                            this.chosenTile.removeChessPiece(); // Remove from original tile
+                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                            this.chosenPiece.canCastle = false;
+                            if (this.chosenPiece instanceof Pawn && Math.abs(clickedTile.getRow() - this.chosenTile.getRow()) == 2) {
+                                this.lastMovedPiece = this.chosenPiece;
+                            }
                             setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
                             togglePlayer();
+                        }
+                    } else if (this.chosenPiece instanceof King) {
+                        if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
+
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, true, false)) {
+                                this.resetToChoosingPhase(clickedTile);
+                            } else {
+                                ((King) this.chosenPiece).castle(clickedTile, this.board);
+                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
+                                togglePlayer();
+                            }
                         }
                     } else if (this.chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, this.chosenPiece)) {
                         if (((Pawn) this.chosenPiece).isValidEnPassantMove(clickedTile, this.board)) {
-
-                            this.chosenTile.removeChessPiece(); // Remove from original tile
-                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                            this.lastMovedPiece.getTile().removeChessPiece();
-                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                            togglePlayer();
+                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, true)) {
+                                this.resetToChoosingPhase(clickedTile);
+                            } else {
+                                this.chosenTile.removeChessPiece(); // Remove from original tile
+                                clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
+                                this.lastMovedPiece.getTile().removeChessPiece();
+                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
+                                togglePlayer();
+                            }
                         }
                     }
                     this.resetToChoosingPhase(clickedTile);
@@ -188,10 +204,10 @@ public class Game {
 
     private void togglePlayer() {
         System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
-        if (isChecked(playerWhite)) {
+        if (isChecked(playerWhite, board)) {
             System.out.println("  White is checked.");
         }
-        if (isChecked(playerBlack)) {
+        if (isChecked(playerBlack, board)) {
             System.out.println("  Black is checked.");
         }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
@@ -216,7 +232,7 @@ public class Game {
         this.lastMovedPiece = movedPiece;
     }
 
-    private boolean isChecked(Player player) {
+    private boolean isChecked(Player player, Board board) {
 
         // Loop through all enemy chess pieces and check if the check the players king
         Tile [][] tiles = board.getTiles();
@@ -235,7 +251,7 @@ public class Game {
 
                 King playerKing = player.getKing();
 
-                if (potentialAttacker.isValidMove(playerKing.getTile(), this.board)) {
+                if (potentialAttacker.isValidMove(playerKing.getTile(), board)) {
                     return true; // Check if enemy piece could capture the players king
                 }
 
@@ -243,5 +259,79 @@ public class Game {
         }
 
         return false;
+    }
+
+    private boolean moveLeavesKingExposed(Tile source, Tile target, boolean castling, boolean enPassant) {
+        // Copy board, carry out the move and check if the players King is checked
+
+        Board boardCopy = copyBoard();
+
+        Player copyWhite = boardCopy.getPlayerWhite();
+        Player copyBlack = boardCopy.getPlayerBlack();
+        Player currentPlayer;
+
+        if (this.currentPlayer.getColor() == ChessColor.WHITE) {
+            currentPlayer = copyWhite;
+        } else {
+            currentPlayer = copyBlack;
+        }
+
+        Tile chosenTile = boardCopy.getTile(source.getRow(), source.getCol());
+        ChessPiece chosenPiece = chosenTile.getChessPiece();
+        Tile targetedTile = boardCopy.getTile(target.getRow(), target.getCol());
+
+        if (castling) { // castling move
+            ((King) chosenPiece).castle(targetedTile, boardCopy);
+        } else if (enPassant) { // en passant move
+            chosenTile.removeChessPiece(); // Remove from original tile
+            targetedTile.setChessPiece(chosenPiece); // Place on new tile
+
+            Tile enPassantTile = boardCopy.getTile(lastMovedPiece.getTile().getRow(), lastMovedPiece.getTile().getCol());
+            enPassantTile.removeChessPiece();
+        } else { // normal move
+            chosenTile.removeChessPiece(); // Remove from original tile
+            targetedTile.setChessPiece(chosenPiece); // Place on new tile
+        }
+
+        boolean isChecked = isChecked(currentPlayer, boardCopy);
+        boardCopy = null;
+        if (isChecked) {
+            System.out.println("Can not carry out this move because it leaves the current players king exposed.");
+        }
+        return isChecked;
+    }
+
+    private Board copyBoard() {
+        Board copy = new Board(board.getTileSize());
+        Player copyWhite = new Player(ChessColor.WHITE);
+        Player copyBlack = new Player(ChessColor.BLACK);
+
+        Tile [][] tiles = board.getTiles();
+        Tile [][] copiedTiles = copy.getTiles();
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[row].length; col++) {
+                if (tiles[row][col].hasChessPiece()) {
+                    ChessPiece piece = tiles[row][col].getChessPiece();
+                    ChessPiece clonedPiece = piece.clone();
+                    if (piece.getColor() == ChessColor.WHITE) {
+                        clonedPiece.setOwner(copyWhite);
+                        if (piece instanceof King) {
+                            copyWhite.setKing((King) clonedPiece);
+                        }
+                    } else {
+                        clonedPiece.setOwner(copyBlack);
+                        if (piece instanceof King) {
+                            copyBlack.setKing((King) clonedPiece);
+                        }
+                    }
+                    copiedTiles[row][col].setChessPiece(clonedPiece);
+                    clonedPiece.setTile(copiedTiles[row][col]);
+                }
+            }
+        }
+
+        copy.setPlayerBlack(copyBlack);
+        copy.setPlayerWhite(copyWhite);
+        return copy;
     }
 }

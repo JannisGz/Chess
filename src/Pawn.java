@@ -70,4 +70,14 @@ public class Pawn extends ChessPiece {
 
         return delta_diagonal == 1 && delta_forward == 1;
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new Pawn(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }

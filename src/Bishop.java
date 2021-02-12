@@ -65,4 +65,14 @@ public class Bishop extends ChessPiece {
     public String getName() {
         return "Bishop";
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new Bishop(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }

@@ -33,4 +33,14 @@ public class Knight extends ChessPiece{
     public String getName() {
         return "Knight";
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new Knight(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }

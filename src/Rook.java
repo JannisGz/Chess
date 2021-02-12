@@ -57,4 +57,14 @@ public class Rook extends ChessPiece {
     public String getName() {
         return "Rook";
     }
+
+    @Override
+    public ChessPiece clone() {
+        ChessPiece copy = new Rook(this.owner);
+        this.owner.removeChessPiece(copy);
+        copy.canCastle = this.canCastle;
+        copy.icon = this.icon;
+
+        return copy;
+    }
 }
