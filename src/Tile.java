@@ -12,9 +12,7 @@ public class Tile extends JButton {
     private final int size;
     private final int row;
     private final int col;
-    private String name; // To Do: Calculate Name of tile (e.g. B6, H7)
-    private Map<Integer, String> colToName = new HashMap<Integer, String>();
-    private Map<Integer, String> rowToName = new HashMap<Integer, String>();
+    private final String name; // To Do: Calculate Name of tile (e.g. B6, H7)
 
     public Tile(Board board, ChessColor color, int row, int col, int size) {
         this.board = board;
@@ -36,6 +34,7 @@ public class Tile extends JButton {
         this.setBorder(BorderFactory.createLineBorder(Color.blue, size/10)); // Highlights the tile when clicked
         this.setBorderPainted(false);
 
+        Map<Integer, String> colToName = new HashMap<>();
         colToName.put(0, "A");
         colToName.put(1, "B");
         colToName.put(2, "C");
@@ -45,6 +44,7 @@ public class Tile extends JButton {
         colToName.put(6, "G");
         colToName.put(7, "H");
 
+        Map<Integer, String> rowToName = new HashMap<>();
         rowToName.put(0, "8");
         rowToName.put(1, "7");
         rowToName.put(2, "6");
@@ -86,9 +86,7 @@ public class Tile extends JButton {
     }
 
     public boolean hasChessPiece() {
-        if (chessPiece != null)
-            return true;
-        return false;
+        return chessPiece != null;
     }
 
     public int getRow() {

@@ -24,7 +24,7 @@ public class King extends ChessPiece {
         int targetCol = target.getCol();
         int targetRow = target.getRow();
 
-        boolean normalMove = (currentRow + 1 == targetRow && currentCol == targetCol) ||
+        return (currentRow + 1 == targetRow && currentCol == targetCol) ||
                 (currentRow + 1 == targetRow && currentCol + 1 == targetCol) ||
                 (currentRow + 1 == targetRow && currentCol - 1 == targetCol) ||
                 (currentRow - 1 == targetRow && currentCol == targetCol) ||
@@ -32,8 +32,6 @@ public class King extends ChessPiece {
                 (currentRow - 1 == targetRow && currentCol - 1 == targetCol) ||
                 (currentRow == targetRow && currentCol + 1 == targetCol) ||
                 (currentRow == targetRow && currentCol - 1 == targetCol);
-
-        return normalMove;
     }
 
     @Override

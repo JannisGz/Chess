@@ -20,9 +20,6 @@ public class Queen extends ChessPiece {
         temporaryBishop.setTile(this.getTile());
         boolean validBishopMove = temporaryBishop.isValidMove(target, board);
 
-        temporaryBishop = null;
-        temporaryBishop = null; // Ready for garbage collection
-
         return validRookMove || validBishopMove;
     }
 

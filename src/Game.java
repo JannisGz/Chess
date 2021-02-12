@@ -294,7 +294,6 @@ public class Game {
         }
 
         boolean isChecked = isChecked(currentPlayer, boardCopy);
-        boardCopy = null;
         if (isChecked) {
             System.out.println("Can not carry out this move because it leaves the current players king exposed.");
         }

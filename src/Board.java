@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 public class Board extends JPanel {
 
-    private Tile tiles [][];
-    private int tileSize;
-    private ArrayList<Game> observers = new ArrayList<Game>();
+    private final Tile[][] tiles;
+    private final int tileSize;
+    private ArrayList<Game> observers = new ArrayList<>();
     private Player playerWhite;
     private Player playerBlack;
 
