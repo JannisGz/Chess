@@ -81,12 +81,12 @@ public class Rook extends ChessPiece {
         return "Rook";
     }
 
-    @Override
     /**
      * Creates a copy of this chess piece.
      *
      * @return a copy of this Rook
      */
+    @Override
     public ChessPiece clone() {
         ChessPiece copy = new Rook(this.owner);
         this.owner.removeChessPiece(copy);
