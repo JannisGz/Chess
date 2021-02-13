@@ -220,6 +220,10 @@ public class Game {
         }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
         moveNum++;
+
+        if (isRemis(currentPlayer, board)) {
+            System.out.println("  No possible moves left for unchecked " + currentPlayer.getColor() + ". Remis");
+        }
     }
 
     private boolean isEnPassantPossible(Tile target, ChessPiece piece) {
@@ -398,6 +402,77 @@ public class Game {
 
             }
         }
+
+        return true;
+    }
+
+    private boolean isRemis(Player player, Board board) {
+        if (isChecked(player, board)) {
+            return false;
+        }
+
+        Tile[][] tiles = board.getTiles();
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[row].length; col++) {
+
+                Tile currentTile = tiles[row][col];
+
+                if (!currentTile.hasChessPiece()) {
+                    continue;
+                }
+
+                ChessPiece currentPiece = currentTile.getChessPiece();
+
+                if (currentPiece.getColor() != player.getColor()) {
+                    continue;
+                }
+
+                for (int row2 = 0; row2 < tiles.length; row2++) {
+                    for (int col2 = 0; col2 < tiles[row2].length; col2++) {
+
+                        if (row2 == row && col2 == col) { // Source and target are identical
+                            continue;
+                        }
+
+                        Tile targetTile = tiles[row2][col2];
+                        if (targetTile.hasChessPiece()) { // Check if there is a chess piece on the tile
+                            if (targetTile.getChessPiece().getOwner() == player) {
+                                continue;
+                            }
+                        }
+
+                        boolean validMove = currentPiece.isValidMove(targetTile, board);
+                        boolean enPassant = false;
+                        boolean castling = false;
+
+                        if (currentPiece instanceof Pawn && isEnPassantPossible(targetTile, currentPiece)) {
+                            if (((Pawn) currentPiece).isValidEnPassantMove(targetTile, board)) {
+                                enPassant = true;
+                            }
+                        }
+
+                        if (currentPiece instanceof King) {
+                            if (((King) currentPiece).isValidCastlingMove(targetTile, board)) {
+                                castling = true;
+                            }
+                        }
+
+                        // Can not castle while being checked -> No need to check if such a move would remove the check
+                        if (validMove || enPassant || castling) {
+                            boolean stillExposed = moveLeavesKingExposed(currentTile, targetTile, castling, enPassant, player);
+                            if (!stillExposed) {
+                                System.out.println("***Found a move for " + player.getColor() + " -> no Remis");
+                                System.out.println("***" + currentPiece.getName() + ": " + currentTile.getName() + " -> " + targetTile.getName());
+                                return false; // There is a move for the player that does not lead to its own check -> Not a Remis.
+                            }
+                        }
+                    }
+                }
+
+
+            }
+        }
+
 
         return true;
     }
