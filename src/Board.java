@@ -59,7 +59,7 @@ public class Board extends JPanel {
 
     private void notify(Tile clickedTile) {
         for (Game observer: this.observers) {
-            observer.update(clickedTile);
+            observer.processInput(clickedTile);
         }
     }
 

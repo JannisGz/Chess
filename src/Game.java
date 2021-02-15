@@ -12,13 +12,34 @@ public class Game {
     private Tile lastTargetTile;
     private int moveNum;
 
+    /**
+     * Abstraction of the Phases of a chess move. Every move consists of two parts. First the currently active
+     * {@link Player} has to choose one of his {@link ChessPiece}s. This is the {@link Phase#Choosing} - phase. In the
+     * second part, the chosen piece is moved to another {@link Tile}. Every subclass of ChessPiece has a different move
+     * set, which determine the Tiles that can be targeted. Here, this second part is called the {@link Phase#Moving}
+     * - phase.
+     */
     enum Phase {
-        Choosing,
-        Moving
+        /** First part of every move */ Choosing,
+        /** Second part of every move */ Moving
     }
 
 
+    /**
+     * Creates a new chess game. A Game consists of two {@link Player}s and a (Chess-) {@link Board}. Each Player has a
+     * specific {@link ChessColor}: Either black or white. Every Player gets 16 {@link ChessPiece}s which are placed on
+     * the Board. The set of starting pieces, consist of 8 {@link Pawn}s, 2 {@link Rook}s, 2 {@link Knight}s, 2
+     * {@link Bishop}s, 1 {@link Queen} and 1 {@link King}. The white player starts at the bottom and the black player
+     * at the top of the Board. The white Player has the first move.
+     *
+     * The {@link Tile}s of the Board act as the input sources for the {@link Game}. The Game observes the Tiles and
+     * gets notified every time one of them is clicked. This will call the {@link Game#processInput(Tile)} method of this
+     * class. Those inputs are then transforme into moves for the ChessPieces.
+     *
+     * @param board the board that will be used for this chess match
+     */
     public Game(Board board) {
+        // Initialize the board, players and ChessPieces
         this.board = board;
         this.board.addObserver(this);
 
@@ -96,21 +117,36 @@ public class Game {
         this.moveNum = 1;
     }
 
-    public void update(Tile clickedTile) {
+    /**
+     * Transforms a click on a {@link Tile} into moves for {@link ChessPiece}s. Every move consists of two
+     * {@link Phase}s: {@link Phase#Choosing} and {@link Phase#Moving}, which dictate how the input is handled.
+     *
+     * - Choosing Phase:
+     * In this phase the currently active {@link Player} has to choose a {@link Tile}, on which one of his own
+     * {@link ChessPiece}s is located. This phase will not end until a valid Tile is clicked.
+     *
+     * - Moving Phase:
+     * In this phase the currently active Player has to choose another Tile. This time, it has to be valid target for
+     * the previously chosen ChessPiece. This means that the ChessPiece's move set must be compatible with the current
+     * location of the ChessPiece and the clicked Tile. Also, carrying out the move must not result in a check for the
+     * current player. If an invalid Tile is clicked, the Game is reset to the Choosing phase. A valid Tile ends the
+     * current turn, starts the detection of check, checkmate and remis conditions and toggles the active player to the
+     * opponent.
+     *
+     * @param clickedTile the Tile that was clicked
+     */
+    public void processInput(Tile clickedTile) {
 
         switch (currentPhase) {
-            case Choosing: // A Tile with a piece of the currently active player has to be chosen
+            case Choosing: // Check if the clicked Tile is valid option for the currently active player
 
-                // Check if the chosen tile is a valid choice for the active player
                 if (!clickedTile.hasChessPiece()) {
-                    // The Tile does not contain a chess piece
-                    break;
+                    break; // Tile has no ChessPiece
                 }
                 this.chosenPiece = clickedTile.getChessPiece();
 
                 if (this.chosenPiece.getColor() != this.currentPlayer.getColor()) {
-                    // The Tile contains a chess piece, that does NOT belong to the active player
-                    break;
+                    break; // The Tile has a ChessPiece, but it does NOT belong to the active Player
                 } else {
                     // The chosen Tile is a valid option -> Entering Moving phase
                     this.chosenTile = clickedTile;
@@ -120,7 +156,7 @@ public class Game {
 
                 break;
 
-            case Moving:
+            case Moving: // Check if the clicked Tile is a valid target for the previously chosen ChessPiece
 
                 if (this.chosenTile == clickedTile) {
                     // The same Tile was chosen again -> Reset to choosing phase
@@ -147,7 +183,7 @@ public class Game {
                                 }
                                 setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
 
-                                togglePlayer();
+                                endTurn();
                             }
                         }
                         this.resetToChoosingPhase(clickedTile);
@@ -170,7 +206,7 @@ public class Game {
                                 this.lastMovedPiece = this.chosenPiece;
                             }
                             setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                            togglePlayer();
+                            endTurn();
                         }
                     } else if (this.chosenPiece instanceof King) {
                         if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
@@ -181,7 +217,7 @@ public class Game {
                             } else {
                                 ((King) this.chosenPiece).castle(clickedTile, this.board);
                                 setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                                togglePlayer();
+                                endTurn();
                             }
                         }
                     } else if (this.chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, this.chosenPiece)) {
@@ -194,7 +230,7 @@ public class Game {
                                 clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                                 this.lastMovedPiece.getTile().removeChessPiece();
                                 setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                                togglePlayer();
+                                endTurn();
                             }
                         }
                     }
@@ -207,13 +243,23 @@ public class Game {
         }
     }
 
+    /**
+     * Resets the {@link Game} and the {@link Board} to the 'Choosing' Phase. All {@link Tile}s are marked as inactive
+     * and the currently active {@link Player} has to choose a new Tile (or {@link ChessPiece}) that he wants to use.
+     *
+     * @param clickedTile the Tile that has been clicked
+     */
     private void resetToChoosingPhase(Tile clickedTile) {
         this.chosenTile.markAsInactive();
         clickedTile.markAsInactive();
         this.currentPhase = Phase.Choosing;
     }
 
-    private void togglePlayer() {
+    /**
+     * Ends the current turn, by testing if any check, checkmate or remis conditions are met and toggling the currently
+     * active {@link Player}.
+     */
+    private void endTurn() {
         System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
         if (isCheckMate(playerWhite, board)) {
             System.out.println("  White is checkmate. Black wins.");
