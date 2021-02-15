@@ -310,6 +310,9 @@ public class Game {
         } else { // normal move
             chosenTile.removeChessPiece(); // Remove from original tile
             targetedTile.setChessPiece(chosenPiece); // Place on new tile
+            if (chosenPiece instanceof Pawn) {
+                chosenPiece = transformPawn((Pawn) chosenPiece);
+            }
         }
 
         return isChecked(currentPlayer, boardCopy);
