@@ -142,7 +142,11 @@ public class Game {
                                 targetedPiece.setTile(null); // Remove currently occupying chess piece
                                 clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                                 this.chosenPiece.canCastle = false;
+                                if (chosenPiece instanceof Pawn) {
+                                    chosenPiece = transformPawn((Pawn) chosenPiece);
+                                }
                                 setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
+
                                 togglePlayer();
                             }
                         }
@@ -159,6 +163,9 @@ public class Game {
                             this.chosenTile.removeChessPiece(); // Remove from original tile
                             clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
                             this.chosenPiece.canCastle = false;
+                            if (chosenPiece instanceof Pawn) {
+                                chosenPiece = transformPawn((Pawn) chosenPiece);
+                            }
                             if (this.chosenPiece instanceof Pawn && Math.abs(clickedTile.getRow() - this.chosenTile.getRow()) == 2) {
                                 this.lastMovedPiece = this.chosenPiece;
                             }
@@ -475,5 +482,29 @@ public class Game {
 
 
         return true;
+    }
+
+    /**
+     * Replaces the given Pawn with a Queen, if it has reached the other side of the Board. The new Queen belongs to the
+     * same owner and occupies the same Tile as the original ChessPiece.
+     *
+     * @param pawn the Pawn that will potentially be transformed into a Queen
+     * @return the new Queen if the transformation was successful or the original pawn
+     */
+    private ChessPiece transformPawn(Pawn pawn) {
+        Tile occupiedTile = pawn.getTile();
+
+        // Check if the Pawn reached the opposite side of the board
+        if ((occupiedTile.getRow() == 0 && pawn.getColor() == ChessColor.WHITE) ||
+                (occupiedTile.getRow() == 7 && pawn.getColor() == ChessColor.BLACK)) {
+
+            occupiedTile.removeChessPiece();
+            Queen newQueen = new Queen(pawn.getOwner());
+            occupiedTile.setChessPiece(newQueen);
+            pawn.getOwner().removeChessPiece(pawn);
+
+            return newQueen;
+        }
+        return pawn;
     }
 }
