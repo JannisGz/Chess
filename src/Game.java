@@ -233,45 +233,72 @@ public class Game {
         }
     }
 
+    /**
+     * Tests if given move involving the specified {@link ChessPiece} and its targeted {@link Tile}, is a valid
+     * 'en Passant' move. This means the given ChessPiece has to be a {@link Pawn}, the previous move of the game has to
+     * be a two-tile forward move carried out by an opposing Pawn. This method does NOT check if this move leaves the
+     * {@link Player}s {@link King} checked.
+     *
+     * @param target the targeted Tile of the move
+     * @param piece the involved ChessPiece
+     * @return true if this is a valid en passant move
+     */
     private boolean isEnPassantPossible(Tile target, ChessPiece piece) {
         if (!(piece instanceof Pawn) || !(this.lastMovedPiece instanceof Pawn)) {
-            return false;
+            return false; // Both the currently moved ChessPiece and the last one have to be Pawns
         } else {
             int row1 = this.lastSourceTile.getRow();
             int row2 = target.getRow();
             int row3 = this.lastTargetTile.getRow();
 
+            // The currently moved Pawn has to targeted the Tile between the Source and Target Tile of the previous move
             return (row1 < row2 && row2 < row3) || (row3 < row2 && row2 < row1);
         }
     }
 
+    /**
+     * Saves the combination of source and target {@link Tile} and involved {@link ChessPiece} as the latest move of
+     * this {@link Game}.
+     *
+     * @param source the Tile from which the ChessPiece started its move
+     * @param target the Tile on which the ChessPiece ended its move
+     * @param movedPiece the ChessPiece that moved from source to target
+     */
     private void setLastMove(Tile source, Tile target, ChessPiece movedPiece) {
         this.lastSourceTile = source;
         this.lastTargetTile = target;
         this.lastMovedPiece = movedPiece;
     }
 
+    /**
+     * Tests if the specified {@link Player} is checked by his opponent on the given {@link Board}.
+     *
+     * @param player the player who will be tested for being checked
+     * @param board the board containing the Players {@link ChessPiece}s
+     * @return true if the Player is checked
+     */
     private boolean isChecked(Player player, Board board) {
 
-        // Loop through all enemy chess pieces and check if the check the players king
+        // Loop through all opposing chess pieces and test if they check the players king
         Tile[][] tiles = board.getTiles();
         for (int row = 0; row < tiles.length; row++) {
             for (int col = 0; col < tiles[row].length; col++) {
 
                 if (!tiles[row][col].hasChessPiece()) {
-                    continue; // Skip this tile if it has no chess piece
+                    continue; // Skip this tile, it has no ChessPiece
                 }
 
                 ChessPiece potentialAttacker = tiles[row][col].getChessPiece();
 
                 if (potentialAttacker.getOwner() == player) {
-                    continue; // Skip this piece if it does not belong to the enemy player
+                    continue; // Skip this piece, it does not belong to the opponent
                 }
 
                 King playerKing = player.getKing();
 
+                // Test if the ChessPiece could capture the players King with its next move
                 if (potentialAttacker.isValidMove(playerKing.getTile(), board)) {
-                    return true; // Check if enemy piece could capture the players king
+                    return true;
                 }
 
             }
@@ -280,9 +307,20 @@ public class Game {
         return false;
     }
 
+    /**
+     * Checks if moving a {@link  ChessPiece} from the given source {@link Tile} to the given targeted Tile leaves the
+     * owning {@link Player}s {@link King} checked. If this is the case the move is considered illegal or invalid.
+     *
+     * @param source the Tile containing the ChessPiece which will be moved
+     * @param target the targeted Tile of the move
+     * @param castling whether the move is a castling move
+     * @param enPassant whether the move is an en passant move
+     * @param player the player who owns the ChessPiece on the source Tile
+     * @return true if the move leaves the players king checked (illegal move)
+     */
     private boolean moveLeavesKingExposed(Tile source, Tile target, boolean castling, boolean enPassant, Player player) {
-        // Copy board, carry out the move and check if the players King is checked
 
+        // Copy the board and determine the involved Tiles and Players on it -> The 'real' board will NOT be altered.
         Board boardCopy = copyBoard();
 
         Player copyWhite = boardCopy.getPlayerWhite();
@@ -311,18 +349,26 @@ public class Game {
             chosenTile.removeChessPiece(); // Remove from original tile
             targetedTile.setChessPiece(chosenPiece); // Place on new tile
             if (chosenPiece instanceof Pawn) {
-                chosenPiece = transformPawn((Pawn) chosenPiece);
+                transformPawn((Pawn) chosenPiece); // Transform Pawn into a Queen if it reaches the other side
             }
         }
 
         return isChecked(currentPlayer, boardCopy);
     }
 
+    /**
+     * Creates a {@link Board} that contains the same {@link ChessPiece}s with the same {@link ChessColor}s, but two new
+     * {@link Player}s. Using this copy, moves can be tested without altering the real Board or the real ChessPieces.
+     *
+     * @return a copy of this games Board.
+     */
     private Board copyBoard() {
+        // Create a new Board and players without any ChessPieces
         Board copy = new Board(board.getTileSize());
         Player copyWhite = new Player(ChessColor.WHITE);
         Player copyBlack = new Player(ChessColor.BLACK);
 
+        // Loop through the original board and the new copy and clone the ChessPieces found on the original
         Tile[][] tiles = board.getTiles();
         Tile[][] copiedTiles = copy.getTiles();
         for (int row = 0; row < tiles.length; row++) {
