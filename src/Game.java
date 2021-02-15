@@ -352,139 +352,118 @@ public class Game {
         return copy;
     }
 
+    /**
+     * EValuates if the given {@link Player} is checkmate. This means that the Players' {@link King} is currently
+     * checked and none of his {@link ChessPiece}s are able to move in a way, that breaks this check. This means the
+     * Player loses the match.
+     *
+     * @param player the player who is investigated
+     * @param board the Board that is investigated
+     * @return true if the given Player is checkmate
+     */
     private boolean isCheckMate(Player player, Board board) {
-        // TODO: Quadruple nested for loop. Better solution possible? (8*8*8*8 = 4k possibilities)
         if (!isChecked(player, board)) { // Can not be check mate if not checked
             return false;
         }
 
-        // Loop through all Tiles on the Board.
-        Tile[][] tiles = board.getTiles();
-        for (int row = 0; row < tiles.length; row++) {
-            for (int col = 0; col < tiles[row].length; col++) {
-                Tile currentTile = tiles[row][col];
-
-                if (!currentTile.hasChessPiece()) { // Check if there is a chess piece on the tile
-                    continue;
-                }
-
-                ChessPiece currentPiece = currentTile.getChessPiece();
-
-                if (player != currentPiece.getOwner()) { // ChessPiece does not belong to the currently active player
-                    continue;
-                }
-
-                // Loop through all Tiles and test if moving the chess piece to that Tile will break the check
-                for (int row2 = 0; row2 < tiles.length; row2++) {
-                    for (int col2 = 0; col2 < tiles[row2].length; col2++) {
-                        if (row2 == row && col2 == col) {
-                            continue;
-                        }
-                        Tile targetTile = tiles[row2][col2];
-
-                        if (targetTile.hasChessPiece()) { // Check if there is a chess piece on the tile
-                            if (targetTile.getChessPiece().getOwner() == player) {
-                                continue;
-                            }
-                        }
-
-                        boolean validMove = currentPiece.isValidMove(targetTile, board);
-                        boolean enPassant = false;
-
-                        if (currentPiece instanceof Pawn && isEnPassantPossible(targetTile, currentPiece)) {
-                            if (((Pawn) currentPiece).isValidEnPassantMove(targetTile, board)) {
-                                enPassant = true;
-                            }
-                        }
-
-                        // Can not castle while being checked -> No need to check if such a move would remove the check
-                        if (validMove || enPassant) {
-                            boolean stillExposed = moveLeavesKingExposed(currentTile, targetTile, false, enPassant, player);
-                            if (!stillExposed) {
-                                System.out.println("***Found a move that breaks the check -> no checkmate");
-                                System.out.println("***" + currentPiece.getName() + ": " + currentTile.getName() + " -> " + targetTile.getName());
-                                return false; // There is a move that breaks the check -> Not a checkmate.
-                            }
-                        }
-
-                    }
-                }
-
-            }
-        }
-
-        return true;
+        return !canMove(player, board);
     }
 
+    /**
+     * Checks for Remis. Remis means the match ends in a draw, because the currently active {@link Player} is not
+     * currently checked, but can not move any of his {@link ChessPiece}s.
+     *
+     * @param player the player who is investigated for Remis
+     * @param board the Board that is investigated
+     * @return true if there are no valid moves left for the specified player
+     */
     private boolean isRemis(Player player, Board board) {
-        if (isChecked(player, board)) {
+        if (isChecked(player, board)) { // Can not be Remis if checked
             return false;
         }
 
+        return !canMove(player, board);
+    }
+
+    /**
+     * Iterates over all {@link Tile}s and all corresponding {@link ChessPiece}s on the Board to test if the specified
+     * {@link Player} has any valid moves left. Any legal move that results in the investigated Players {@link King} not
+     * being checked is considered a valid option. All normal moves, but also special moves like 'en passant' or
+     * 'castling' are tested by this method.
+     *
+     * @param player the player who's move options are investigated
+     * @param board the board that is investigated
+     * @return true if there a valid moves left. False if no valid move was found.
+     */
+    private boolean canMove(Player player, Board board) {
+
+        // Loop through all Tiles to find all chess pieces
         Tile[][] tiles = board.getTiles();
         for (int row = 0; row < tiles.length; row++) {
             for (int col = 0; col < tiles[row].length; col++) {
-
                 Tile currentTile = tiles[row][col];
 
+                // Skip if there is no chess piece on the tile
                 if (!currentTile.hasChessPiece()) {
                     continue;
                 }
 
                 ChessPiece currentPiece = currentTile.getChessPiece();
 
+                // Skip if the chess piece belongs to the enemy
                 if (currentPiece.getColor() != player.getColor()) {
                     continue;
                 }
 
+                // Loop through all Tiles to check if they are valid targets for a move
                 for (int row2 = 0; row2 < tiles.length; row2++) {
                     for (int col2 = 0; col2 < tiles[row2].length; col2++) {
 
-                        if (row2 == row && col2 == col) { // Source and target are identical
+                        // Skip if source and target tile are identical
+                        if (row2 == row && col2 == col) {
                             continue;
                         }
 
                         Tile targetTile = tiles[row2][col2];
-                        if (targetTile.hasChessPiece()) { // Check if there is a chess piece on the tile
+
+                        // Skip if the targeted Tile is occupied by a chess piece of the same player
+                        if (targetTile.hasChessPiece()) {
                             if (targetTile.getChessPiece().getOwner() == player) {
                                 continue;
                             }
                         }
 
+                        // Check if the currently investigated Piece can use a normal move to reach the targeted Tile
                         boolean validMove = currentPiece.isValidMove(targetTile, board);
-                        boolean enPassant = false;
-                        boolean castling = false;
 
+                        // Check if the currently investigated Piece can use 'en Passant' to reach the targeted Tile
+                        boolean enPassant = false;
                         if (currentPiece instanceof Pawn && isEnPassantPossible(targetTile, currentPiece)) {
                             if (((Pawn) currentPiece).isValidEnPassantMove(targetTile, board)) {
                                 enPassant = true;
                             }
                         }
 
+                        // Check if the currently investigated Piece can 'castle' to reach the targeted Tile
+                        boolean castling = false;
                         if (currentPiece instanceof King) {
                             if (((King) currentPiece).isValidCastlingMove(targetTile, board)) {
                                 castling = true;
                             }
                         }
 
-                        // Can not castle while being checked -> No need to check if such a move would remove the check
+                        // Check if the move leaves the own King exposed and is therefore invalid
                         if (validMove || enPassant || castling) {
-                            boolean stillExposed = moveLeavesKingExposed(currentTile, targetTile, castling, enPassant, player);
-                            if (!stillExposed) {
-                                System.out.println("***Found a move for " + player.getColor() + " -> no Remis");
-                                System.out.println("***" + currentPiece.getName() + ": " + currentTile.getName() + " -> " + targetTile.getName());
-                                return false; // There is a move for the player that does not lead to its own check -> Not a Remis.
+                            if(!moveLeavesKingExposed(currentTile, targetTile, castling, enPassant, player)) {
+                                return true;
                             }
                         }
                     }
                 }
-
-
             }
         }
 
-
-        return true;
+        return false;
     }
 
     /**
