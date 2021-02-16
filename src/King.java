@@ -135,25 +135,21 @@ public class King extends ChessPiece {
 
         if (targetRow == 0 && targetCol == 2) { // long castle for black
             involvedRook = (Rook) board.getTile(0, 0).getChessPiece();
-            this.getTile().removeChessPiece();
             target.setChessPiece(this);
             board.getTile(0,0).removeChessPiece();
             board.getTile(0,3).setChessPiece(involvedRook);
         } else if (targetRow == 0 && targetCol == 6) { // short castle for black
             involvedRook = (Rook) board.getTile(0, 7).getChessPiece();
-            this.getTile().removeChessPiece();
             target.setChessPiece(this);
             board.getTile(0,7).removeChessPiece();
             board.getTile(0,5).setChessPiece(involvedRook);
         } else if (targetRow == 7 && targetCol == 2) { // long castle for white
             involvedRook = (Rook) board.getTile(7, 0).getChessPiece();
-            this.getTile().removeChessPiece();
             target.setChessPiece(this);
             board.getTile(7,0).removeChessPiece();
             board.getTile(7,3).setChessPiece(involvedRook);
         } else if (targetRow == 7 && targetCol == 6) { // short castle for white
             involvedRook = (Rook) board.getTile(7, 7).getChessPiece();
-            this.getTile().removeChessPiece();
             target.setChessPiece(this);
             board.getTile(7,7).removeChessPiece();
             board.getTile(7,5).setChessPiece(involvedRook);

@@ -1,3 +1,14 @@
+/**
+ * Abstraction of a chess game. A Game consists of two {@link Player}s and a (Chess-) {@link Board}. Each Player has a
+ * specific {@link ChessColor}: Either black or white. Every Player gets 16 {@link ChessPiece}s which are placed on
+ * the Board. The set of starting pieces, consist of 8 {@link Pawn}s, 2 {@link Rook}s, 2 {@link Knight}s, 2
+ * {@link Bishop}s, 1 {@link Queen} and 1 {@link King}. The white player starts at the bottom and the black player
+ * at the top of the Board. The white Player has the first move.
+ * <p>
+ * The {@link Tile}s of the Board act as the input sources for the {@link Game}. The Game observes the Tiles and
+ * gets notified every time one of them is clicked. This will call the {@link Game#processInput(Tile)} method of this
+ * class. Those inputs are then transformed into moves for the ChessPieces.
+ */
 public class Game {
 
     private final Board board;
@@ -20,8 +31,14 @@ public class Game {
      * - phase.
      */
     enum Phase {
-        /** First part of every move */ Choosing,
-        /** Second part of every move */ Moving
+        /**
+         * First part of every move
+         */
+        Choosing,
+        /**
+         * Second part of every move
+         */
+        Moving
     }
 
 
@@ -31,10 +48,10 @@ public class Game {
      * the Board. The set of starting pieces, consist of 8 {@link Pawn}s, 2 {@link Rook}s, 2 {@link Knight}s, 2
      * {@link Bishop}s, 1 {@link Queen} and 1 {@link King}. The white player starts at the bottom and the black player
      * at the top of the Board. The white Player has the first move.
-     *
+     * <p>
      * The {@link Tile}s of the Board act as the input sources for the {@link Game}. The Game observes the Tiles and
      * gets notified every time one of them is clicked. This will call the {@link Game#processInput(Tile)} method of this
-     * class. Those inputs are then transforme into moves for the ChessPieces.
+     * class. Those inputs are then transformed into moves for the ChessPieces.
      *
      * @param board the board that will be used for this chess match
      */
@@ -120,11 +137,11 @@ public class Game {
     /**
      * Transforms a click on a {@link Tile} into moves for {@link ChessPiece}s. Every move consists of two
      * {@link Phase}s: {@link Phase#Choosing} and {@link Phase#Moving}, which dictate how the input is handled.
-     *
+     * <p>
      * - Choosing Phase:
      * In this phase the currently active {@link Player} has to choose a {@link Tile}, on which one of his own
      * {@link ChessPiece}s is located. This phase will not end until a valid Tile is clicked.
-     *
+     * <p>
      * - Moving Phase:
      * In this phase the currently active Player has to choose another Tile. This time, it has to be valid target for
      * the previously chosen ChessPiece. This means that the ChessPiece's move set must be compatible with the current
@@ -143,101 +160,81 @@ public class Game {
                 if (!clickedTile.hasChessPiece()) {
                     break; // Tile has no ChessPiece
                 }
-                this.chosenPiece = clickedTile.getChessPiece();
+                chosenPiece = clickedTile.getChessPiece();
 
-                if (this.chosenPiece.getColor() != this.currentPlayer.getColor()) {
+                if (chosenPiece.getColor() != currentPlayer.getColor()) {
                     break; // The Tile has a ChessPiece, but it does NOT belong to the active Player
                 } else {
                     // The chosen Tile is a valid option -> Entering Moving phase
-                    this.chosenTile = clickedTile;
-                    this.chosenTile.markAsActive();
-                    this.currentPhase = Phase.Moving;
+                    chosenTile = clickedTile;
+                    chosenTile.markAsActive();
+                    currentPhase = Phase.Moving;
                 }
 
                 break;
 
             case Moving: // Check if the clicked Tile is a valid target for the previously chosen ChessPiece
 
+                // The same Tile was clicked again -> Reset to choosing phase
                 if (this.chosenTile == clickedTile) {
-                    // The same Tile was chosen again -> Reset to choosing phase
-                    this.resetToChoosingPhase(clickedTile);
-                } else if (clickedTile.hasChessPiece()) {
-                    // There is a chess piece on the targeted tile
-                    ChessPiece targetedPiece = clickedTile.getChessPiece();
-                    if (targetedPiece.getColor() == chosenPiece.getColor()) {
-                        // Targeting a ChessPiece that belongs to the same player -> Reset to choosing phase
-                        this.resetToChoosingPhase(clickedTile);
-                    } else {
-                        // Check if chosen Piece can eliminate the targeted piece
-                        if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, false, currentPlayer)) {
-                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
-                                this.resetToChoosingPhase(clickedTile);
-                            } else {
-                                this.chosenTile.removeChessPiece(); // Remove from original tile
-                                targetedPiece.setTile(null); // Remove currently occupying chess piece
-                                clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                                this.chosenPiece.canCastle = false;
-                                if (chosenPiece instanceof Pawn) {
-                                    chosenPiece = transformPawn((Pawn) chosenPiece);
-                                }
-                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-
-                                endTurn();
-                            }
-                        }
-                        this.resetToChoosingPhase(clickedTile);
-                        break;
-                    }
-                } else {
-                    // Empty tile -> Check if chosen piece can move to the targeted tile
-                    if (this.chosenPiece.isValidMove(clickedTile, this.board)) {
-                        if (moveLeavesKingExposed(chosenTile, clickedTile, false, false, currentPlayer)) {
-                            System.out.println("Can not carry out this move because it leaves the current players king exposed.");
-                            this.resetToChoosingPhase(clickedTile);
-                        } else {
-                            this.chosenTile.removeChessPiece(); // Remove from original tile
-                            clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                            this.chosenPiece.canCastle = false;
-                            if (chosenPiece instanceof Pawn) {
-                                chosenPiece = transformPawn((Pawn) chosenPiece);
-                            }
-                            if (this.chosenPiece instanceof Pawn && Math.abs(clickedTile.getRow() - this.chosenTile.getRow()) == 2) {
-                                this.lastMovedPiece = this.chosenPiece;
-                            }
-                            setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                            endTurn();
-                        }
-                    } else if (this.chosenPiece instanceof King) {
-                        if (((King) this.chosenPiece).isValidCastlingMove(clickedTile, this.board)) {
-
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, true, false, currentPlayer)) {
-                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
-                                this.resetToChoosingPhase(clickedTile);
-                            } else {
-                                ((King) this.chosenPiece).castle(clickedTile, this.board);
-                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                                endTurn();
-                            }
-                        }
-                    } else if (this.chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, this.chosenPiece)) {
-                        if (((Pawn) this.chosenPiece).isValidEnPassantMove(clickedTile, this.board)) {
-                            if (moveLeavesKingExposed(chosenTile, clickedTile, false, true, currentPlayer)) {
-                                System.out.println("Can not carry out this move because it leaves the current players king exposed.");
-                                this.resetToChoosingPhase(clickedTile);
-                            } else {
-                                this.chosenTile.removeChessPiece(); // Remove from original tile
-                                clickedTile.setChessPiece(this.chosenPiece); // Place on new tile
-                                this.lastMovedPiece.getTile().removeChessPiece();
-                                setLastMove(this.chosenTile, clickedTile, this.chosenPiece);
-                                endTurn();
-                            }
-                        }
-                    }
-                    this.resetToChoosingPhase(clickedTile);
+                    resetToChoosingPhase(clickedTile);
                     break;
                 }
+
+                // Targeting a ChessPiece that belongs to the same player -> Reset to choosing phase
+                if (clickedTile.hasChessPiece()) {
+                    ChessPiece targetedPiece = clickedTile.getChessPiece();
+                    if (targetedPiece.getColor() == chosenPiece.getColor()) {
+                        resetToChoosingPhase(clickedTile);
+                        break;
+                    }
+                }
+
+                // Check if the targeted Tile and the chosen ChessPiece's move set are compatible
+                boolean validNormalMove = chosenPiece.isValidMove(clickedTile, board);
+                boolean validCastlingMove = false;
+                boolean validEnPassantMove = false;
+
+                if (chosenPiece instanceof King) {
+                    validCastlingMove = ((King) chosenPiece).isValidCastlingMove(clickedTile, board);
+                } else if (chosenPiece instanceof Pawn && isEnPassantPossible(clickedTile, chosenPiece)) {
+                    validEnPassantMove = ((Pawn) chosenPiece).isValidEnPassantMove(clickedTile, board);
+                }
+
+                // Combination of start and end Tiles is not compatible with the chosen ChessPiece
+                if (!validNormalMove && !validCastlingMove && !validEnPassantMove) {
+                    resetToChoosingPhase(clickedTile);
+                    break;
+                }
+
+                boolean kingExposed = moveLeavesKingExposed(chosenTile, clickedTile, validCastlingMove, validEnPassantMove, currentPlayer);
+
+                if (kingExposed) {
+                    System.out.println("Chosen move is invalid, it leaves the current players king exposed.");
+                    resetToChoosingPhase(clickedTile);
+                } else { // VALID MOVE
+                    chosenTile.removeChessPiece(); // Remove from original tile
+                    ChessPiece targetedPiece;
+                    if (clickedTile.hasChessPiece()) {
+                        targetedPiece = clickedTile.getChessPiece();
+                        targetedPiece.setTile(null); // Remove currently occupying chess piece
+                    }
+                    clickedTile.setChessPiece(chosenPiece); // Place on new tile
+                    chosenPiece.canCastle = false;
+                    if (chosenPiece instanceof Pawn) {
+                        chosenPiece = transformPawn((Pawn) chosenPiece);
+                    }
+                    if (validCastlingMove) {
+                        ((King) chosenPiece).castle(clickedTile, board);
+                    } else if (validEnPassantMove) {
+                        lastMovedPiece.getTile().removeChessPiece(); // Remove enemy pawn
+                    }
+                    setLastMove(chosenTile, clickedTile, chosenPiece);
+                    endTurn();
+                    resetToChoosingPhase(clickedTile);
+                }
                 break;
+
             default:
                 throw new IllegalStateException("Error: Game is in a unknown Phase.");
         }
@@ -286,7 +283,7 @@ public class Game {
      * {@link Player}s {@link King} checked.
      *
      * @param target the targeted Tile of the move
-     * @param piece the involved ChessPiece
+     * @param piece  the involved ChessPiece
      * @return true if this is a valid en passant move
      */
     private boolean isEnPassantPossible(Tile target, ChessPiece piece) {
@@ -306,8 +303,8 @@ public class Game {
      * Saves the combination of source and target {@link Tile} and involved {@link ChessPiece} as the latest move of
      * this {@link Game}.
      *
-     * @param source the Tile from which the ChessPiece started its move
-     * @param target the Tile on which the ChessPiece ended its move
+     * @param source     the Tile from which the ChessPiece started its move
+     * @param target     the Tile on which the ChessPiece ended its move
      * @param movedPiece the ChessPiece that moved from source to target
      */
     private void setLastMove(Tile source, Tile target, ChessPiece movedPiece) {
@@ -320,7 +317,7 @@ public class Game {
      * Tests if the specified {@link Player} is checked by his opponent on the given {@link Board}.
      *
      * @param player the player who will be tested for being checked
-     * @param board the board containing the Players {@link ChessPiece}s
+     * @param board  the board containing the Players {@link ChessPiece}s
      * @return true if the Player is checked
      */
     private boolean isChecked(Player player, Board board) {
@@ -357,11 +354,11 @@ public class Game {
      * Checks if moving a {@link  ChessPiece} from the given source {@link Tile} to the given targeted Tile leaves the
      * owning {@link Player}s {@link King} checked. If this is the case the move is considered illegal or invalid.
      *
-     * @param source the Tile containing the ChessPiece which will be moved
-     * @param target the targeted Tile of the move
-     * @param castling whether the move is a castling move
+     * @param source    the Tile containing the ChessPiece which will be moved
+     * @param target    the targeted Tile of the move
+     * @param castling  whether the move is a castling move
      * @param enPassant whether the move is an en passant move
-     * @param player the player who owns the ChessPiece on the source Tile
+     * @param player    the player who owns the ChessPiece on the source Tile
      * @return true if the move leaves the players king checked (illegal move)
      */
     private boolean moveLeavesKingExposed(Tile source, Tile target, boolean castling, boolean enPassant, Player player) {
@@ -450,7 +447,7 @@ public class Game {
      * Player loses the match.
      *
      * @param player the player who is investigated
-     * @param board the Board that is investigated
+     * @param board  the Board that is investigated
      * @return true if the given Player is checkmate
      */
     private boolean isCheckMate(Player player, Board board) {
@@ -466,7 +463,7 @@ public class Game {
      * currently checked, but can not move any of his {@link ChessPiece}s.
      *
      * @param player the player who is investigated for Remis
-     * @param board the Board that is investigated
+     * @param board  the Board that is investigated
      * @return true if there are no valid moves left for the specified player
      */
     private boolean isRemis(Player player, Board board) {
@@ -484,7 +481,7 @@ public class Game {
      * 'castling' are tested by this method.
      *
      * @param player the player who's move options are investigated
-     * @param board the board that is investigated
+     * @param board  the board that is investigated
      * @return true if there a valid moves left. False if no valid move was found.
      */
     private boolean canMove(Player player, Board board) {
@@ -546,7 +543,7 @@ public class Game {
 
                         // Check if the move leaves the own King exposed and is therefore invalid
                         if (validMove || enPassant || castling) {
-                            if(!moveLeavesKingExposed(currentTile, targetTile, castling, enPassant, player)) {
+                            if (!moveLeavesKingExposed(currentTile, targetTile, castling, enPassant, player)) {
                                 return true;
                             }
                         }
