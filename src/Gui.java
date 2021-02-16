@@ -79,14 +79,14 @@ public class Gui implements Observer {
     }
 
     private void restartGame() {
-        /*
         contentContainer.remove(board);
         board = new Board(45);
         game = new Game(board);
         game.addObserver(this);
         gameLog.setText("");
         setActiveColor(ChessColor.WHITE);
-        //contentContainer.add(board, 0);*/
+        contentContainer.add(board, 0);
+        contentContainer.revalidate();
     }
 
     private void setActiveColor(ChessColor color) {

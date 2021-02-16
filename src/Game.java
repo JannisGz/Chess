@@ -262,23 +262,18 @@ public class Game extends Observable {
         String moveSummary = String.format("#%d: %s %s %s > %s", moveNum, currentPlayer.getColor(), lastMovedPiece.getName(), lastSourceTile.getName(), lastTargetTile.getName());
         setChanged();
         notifyObservers(moveSummary);
-        //System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
         if (isCheckMate(playerWhite, board)) {
             setChanged();
             notifyObservers(" WHITE is checkmate. BLACK wins.");
-            // System.out.println("  White is checkmate. Black wins.");
         } else if (isChecked(playerWhite, board)) {
-            // System.out.println("  White is checked.");
             setChanged();
             notifyObservers(" WHITE is checked.");
         }
         if (isCheckMate(playerBlack, board)) {
             setChanged();
-            // System.out.println("  Black is checkmate. White wins.");
             notifyObservers(" BLACK is checkmate. WHITE wins.");
         } else if (isChecked(playerBlack, board)) {
             setChanged();
-            // System.out.println("  Black is checked.");
             notifyObservers(" BLACK is checked.");
         }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
