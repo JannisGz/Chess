@@ -211,10 +211,7 @@ public class Game extends Observable {
 
                 boolean kingExposed = moveLeavesKingExposed(chosenTile, clickedTile, validCastlingMove, validEnPassantMove, currentPlayer);
 
-                if (kingExposed) {
-                    System.out.println("Chosen move is invalid, it leaves the current players king exposed.");
-                    resetToChoosingPhase(clickedTile);
-                } else { // VALID MOVE
+                if (!kingExposed) { // VALID MOVE
                     chosenTile.removeChessPiece(); // Remove from original tile
                     ChessPiece targetedPiece;
                     if (clickedTile.hasChessPiece()) {
@@ -233,8 +230,8 @@ public class Game extends Observable {
                     }
                     setLastMove(chosenTile, clickedTile, chosenPiece);
                     endTurn();
-                    resetToChoosingPhase(clickedTile);
                 }
+                resetToChoosingPhase(clickedTile);
                 break;
 
             default:
