@@ -1,3 +1,5 @@
+import java.util.Observable;
+
 /**
  * Abstraction of a chess game. A Game consists of two {@link Player}s and a (Chess-) {@link Board}. Each Player has a
  * specific {@link ChessColor}: Either black or white. Every Player gets 16 {@link ChessPiece}s which are placed on
@@ -9,7 +11,7 @@
  * gets notified every time one of them is clicked. This will call the {@link Game#processInput(Tile)} method of this
  * class. Those inputs are then transformed into moves for the ChessPieces.
  */
-public class Game {
+public class Game extends Observable {
 
     private final Board board;
     private final Player playerWhite;
@@ -257,22 +259,36 @@ public class Game {
      * active {@link Player}.
      */
     private void endTurn() {
-        System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
+        String moveSummary = String.format("#%d: %s %s %s > %s", moveNum, currentPlayer.getColor(), lastMovedPiece.getName(), lastSourceTile.getName(), lastTargetTile.getName());
+        setChanged();
+        notifyObservers(moveSummary);
+        //System.out.println("Move #" + moveNum + ": " + currentPlayer.getColor() + " moved a " + this.lastMovedPiece.getName() + " from " + this.lastSourceTile.getName() + " to " + this.lastTargetTile.getName());
         if (isCheckMate(playerWhite, board)) {
-            System.out.println("  White is checkmate. Black wins.");
+            setChanged();
+            notifyObservers(" WHITE is checkmate. BLACK wins.");
+            // System.out.println("  White is checkmate. Black wins.");
         } else if (isChecked(playerWhite, board)) {
-            System.out.println("  White is checked.");
+            // System.out.println("  White is checked.");
+            setChanged();
+            notifyObservers(" WHITE is checked.");
         }
         if (isCheckMate(playerBlack, board)) {
-            System.out.println("  Black is checkmate. White wins.");
+            setChanged();
+            // System.out.println("  Black is checkmate. White wins.");
+            notifyObservers(" BLACK is checkmate. WHITE wins.");
         } else if (isChecked(playerBlack, board)) {
-            System.out.println("  Black is checked.");
+            setChanged();
+            // System.out.println("  Black is checked.");
+            notifyObservers(" BLACK is checked.");
         }
         currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
+        setChanged();
+        notifyObservers(currentPlayer.getColor());
         moveNum++;
 
         if (isRemis(currentPlayer, board)) {
-            System.out.println("  No possible moves left for unchecked " + currentPlayer.getColor() + ". Remis");
+            //System.out.println("  No possible moves left for unchecked " + currentPlayer.getColor() + ". Remis");
+            notifyObservers(String.format(" %s can not move. Remis.", currentPlayer.getColor()));
         }
     }
 
