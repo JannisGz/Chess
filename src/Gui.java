@@ -85,6 +85,7 @@ public class Gui implements Observer {
         window.pack();
         window.setLocationRelativeTo(null);
         window.setResizable(false);
+        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setVisible(true);
 
     }
