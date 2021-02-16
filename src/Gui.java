@@ -49,8 +49,8 @@ public class Gui implements Observer {
         sidePanel.setBorder(new EmptyBorder(0, 5, 0, 0));
 
         // Label with Icon and text for the currently active color
-        whiteIcon = new ImageIcon("resources/KingW.png");
-        blackIcon = new ImageIcon("resources/KingB.png");
+        whiteIcon = new ImageIcon(getClass().getResource("/resources/kingW.png"));
+        blackIcon = new ImageIcon(getClass().getResource("/resources/kingB.png"));
         activeColorLabel = new JLabel("White's Turn ", whiteIcon, JLabel.CENTER);
         activeColorLabel.setVerticalTextPosition(JLabel.CENTER);
         activeColorLabel.setHorizontalTextPosition(JLabel.RIGHT);

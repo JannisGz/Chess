@@ -16,9 +16,9 @@ public class Rook extends ChessPiece {
         super(owner);
         this.canCastle = true;
         if (owner.getColor() == ChessColor.WHITE)
-            this.icon = new ImageIcon("resources/RookW.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/rookW.png"));
         else
-            this.icon = new ImageIcon("resources/RookB.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/rookB.png"));
     }
 
     /**

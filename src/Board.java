@@ -14,7 +14,7 @@ public class Board extends JPanel {
 
     private final Tile[][] tiles;
     private final int tileSize;
-    private ArrayList<Game> observers = new ArrayList<>();
+    private final ArrayList<Game> observers = new ArrayList<>();
     private Player playerWhite;
     private Player playerBlack;
 

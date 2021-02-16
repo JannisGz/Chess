@@ -21,9 +21,9 @@ public class Pawn extends ChessPiece {
     public Pawn(Player owner) {
         super(owner);
         if (owner.getColor() == ChessColor.WHITE)
-            this.icon = new ImageIcon("resources/PawnW.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/pawnW.png"));
         else
-            this.icon = new ImageIcon("resources/PawnB.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/pawnB.png"));
     }
 
     /**

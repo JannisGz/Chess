@@ -21,9 +21,9 @@ public class King extends ChessPiece {
     public King(Player owner) {
         super(owner);
         if (owner.getColor() == ChessColor.WHITE)
-            this.icon = new ImageIcon("resources/KingW.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/kingW.png"));
         else
-            this.icon = new ImageIcon("resources/KingB.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/kingB.png"));
 
         this.canCastle = true;
     }

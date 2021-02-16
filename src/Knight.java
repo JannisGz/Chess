@@ -13,9 +13,9 @@ public class Knight extends ChessPiece{
     public Knight(Player owner) {
         super(owner);
         if (owner.getColor() == ChessColor.WHITE)
-            this.icon = new ImageIcon("resources/KnightW.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/knightW.png"));
         else
-            this.icon = new ImageIcon("resources/KnightB.png");
+            this.icon = new ImageIcon(getClass().getResource("/resources/knightB.png"));
     }
 
     /**
