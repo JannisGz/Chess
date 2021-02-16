@@ -4,8 +4,9 @@ A java based Chess game
 
 ### To do:
 
-- Remis detection
-- Pawn reaches other side transformation
-- Restart functionality
-- Graphical display of moves, checks, checkmate
-- Graphical display of captured pieces
+- Display Log, current player, game over, etc.
+- Restart/ Surrender functionality
+(- Graphical display of moves, checks, checkmate)
+(- Graphical display of captured pieces)
+- Update ReadMe with About, Installation, Images, ClassDiagram, ...
+- Create executable
