@@ -2,15 +2,13 @@ import java.util.ArrayList;
 
 public class Player {
 
-    private ChessColor color;
+    private final ChessColor color;
     private ArrayList<ChessPiece> chessPieces;
     private King king;
-    private boolean isChecked;
-    private boolean isCheckmate;
 
     public Player(ChessColor color) {
         this.color = color;
-        chessPieces = new ArrayList<ChessPiece>();
+        chessPieces = new ArrayList<>();
 
         this.king = new King(this);
         this.chessPieces.add(this.king);
@@ -18,10 +16,6 @@ public class Player {
 
     public ChessColor getColor() {
         return color;
-    }
-
-    public void setColor(ChessColor color) {
-        this.color = color;
     }
 
     public ArrayList<ChessPiece> getChessPieces() {
