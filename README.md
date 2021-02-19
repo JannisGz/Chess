@@ -1,6 +1,6 @@
 # Chess
 
-This is a Chess application entirely written in Java. The goal for this project was to develop a lightweight chess application, with minimal requirements.
+This is a Chess application entirely written in Java. The goal for this project was to develop a lightweight chess application, with minimal system requirements.
 
 ## Table of Contents
 
@@ -14,16 +14,14 @@ This is a Chess application entirely written in Java. The goal for this project 
 ![Screenshot of the in game view](https://github.com/JannisGz/Chess/blob/master/doc/inGameScreenshot.png?raw=true)
 
 
-This Java application simulates a chess board for two players on the same computer. Just like in a real chess game, players move their pieces alternately. Additionally a panel to the side holds details about the match. It displays the currently active player and a list of moves that have been carried out so far. At any time the board can be reset to its initial state, by clicking on the 'restart'- Button.
+This Java application simulates a chess board for two players on the same computer. Just like in a real world chess game, players move their pieces alternately, following the rules and conditions of their chess pieces, until either a checkmate (one player wins) or a remis (tie) has been reached. The application itself checks if the player inputs correspond to valid moves and if checks, checkmates or a remis occured. Additionally a panel to the side holds details about the ongoing match. It displays the currently active player and a list of moves that have been carried out so far. At any time the board can be reset to its initial state, by clicking on the 'restart'- Button.
 
-Chess pieces are moved by first clicking on a chess piece, that belongs the currently active player. The chosen piece is marked with a small blue highlight around the tile it is located on. Next, a valid target tile or enemy chess piece has to be chosen. Each type of chess piece has a different move set. For every move the application checks if it complies to the chess rules. If it detects an invalid move the board is reset to the choosing phase. However, if the move is valid, it is carried out.
-
-Additionally, after every turn the board is checked if it meets check, checkmate or remis conditions. If a remis or checkmate is detected, the game ends. 
+Chess pieces are moved, by first clicking on a chess piece, which belongs the currently active player. The tile this chess piece is located on, is then marked with a small blue highlight. Next, a valid target tile or enemy chess piece has to be chosen. Each type of chess piece has a different move set. For every move the application checks if it complies to the rules of chess. If it detects an invalid move the board is reset to the choosing phase. However, if the move is considered valid, it is carried out.
 
 <a name="gettingStarted"/></a>
 ## Getting started
 
-An executable jar file is placed in the root directory of this project. The Chess Application can be started with a simple double-click. Other than a Java Version, no additional software is needed. The full source code is also available by cloning this repository.
+An executable jar file is placed in the root directory of this project. The Chess Application can be started with a simple double-click. Other than a Java distribution, no additional software is needed. The full source code is also available by cloning this repository.
 
 <a name="about"/></a>
 ## About
@@ -40,7 +38,7 @@ The Gui is the interface for human players. It is created when the application i
 
 The Game class represents a chess match. A match is created on start-up and whenever the reset button of the Gui is clicked. It consists of two players, their ChessPieces and a Board on which the chess pieces are located. The Game class checks if the move input of the players is valid and if certain game states, like check, checkmate or remis are reached.
 
-### ChessColor and Player
+#### ChessColor and Player
 
 The ChessColor class represents both the graphical properties of ChessPieces and Tiles (i.e. whether they should be displayed in white or black color) and to which Player a ChessPiece belongs to. There are always exactly two players in every match: One black player owning all black pieces and a white player, who owns all white pieces.
 
@@ -51,6 +49,8 @@ The Board class represents a chess board and acts as container for Tiles. Tiles 
 #### ChessPieces
 
 The ChessPiece class is an abstraction of a ChessPiece. It holds both graphical information (e.g. which icon should be displayed for this ChessPiece) and game-loop relevant information (e.g. on which Tile is this ChessPiece currently located and what are valid moves for it). The subclasses of ChessPiece are the individual types of different chess pieces: King, Queen, Rook, Knight, Bishop and Pawn. They implement the move set and conditions that are valid for their specific type. All ChessPieces have a clone() method, which can be used to copy ChessPieces or whole game states including Tiles and Boards, to evaluate the outcome of a move without altering the currently displayed Game. This is used to test if conditions for events like checkmate or remis have been reached.
+
+
 
 
 
